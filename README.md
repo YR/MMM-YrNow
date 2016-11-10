@@ -1,4 +1,3 @@
-# magisk-speil
+# MagicMirror² Module: YrNow
 
-This is NRK's version of MagicMirror (https://github.com/MichMich/MagicMirror).
-The repo contains modules for Medieutvikling and other customization for the app
+This is a module for [MagicMirror²](https://github.com/MichMich/MagicMirror) which displays data from Yr's Nowcast
