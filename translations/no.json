@@ -1,5 +1,5 @@
 {
-    "norain": "Opphold neste 90 minutter",
+    "no_precipitation": "Opphold neste 90 minutter",
     "precipitation_in": "Nedbør om %d minutter",
     "precipitation_ends": "Opphold om %d minutter",
     "loading": "Laster inn..."

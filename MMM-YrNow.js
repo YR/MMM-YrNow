@@ -3,13 +3,6 @@ Module.register('MMM-YrNow', {
         
 	},
 
-	start: function() {
-		this.list = null;
-		this.loaded = false;
-		this.getNowcast();
-		this.scheduleUpdate(1000);
-	},
-
     getTranslations: function() {
         return {
             no: "translations/no.json",
@@ -22,6 +15,26 @@ Module.register('MMM-YrNow', {
         ];
     },
 
+	start: function() {
+		this.list = null;
+		this.loaded = false;
+        this.getNowcast();
+		this.scheduleUpdate(10000);
+	},
+
+    socketNotificationReceived: function(notification, payload) {
+		if(notification === 'YR_NOWCAST_DATA'){
+			if(payload.points != null) {
+				this.processJSON(payload);
+			}
+		}
+	},
+
+    getNowcast: function() {
+        var yrApiUrl = printf('https://www.yr.no/api/v0/locations/id/%s/forecast/now' ,this.config.locationId);
+		this.sendSocketNotification('GET_YR_NOWCAST', yrApiUrl);
+	},
+
 	getDom: function() {		
 		var wrapper = document.createElement('div');
 		if (!this.loaded) {
@@ -32,39 +45,35 @@ Module.register('MMM-YrNow', {
         wrapper.className = 'light medium bright';
 
         //Add fake data
-        this.list.points[5].precipitation.intensity = 0.5;
+        //this.list.points[5].precipitation.intensity = 0.5;
 
-        var rainStart = this.list.points.filter((item) => item.precipitation.intensity > 0)[0];
-        var rainStop = this.list.points.filter((item) => item.precipitation.intensity === 0)[0];
+        var precipitationStart = this.list.points.filter((item) => item.precipitation.intensity > 0)[0];
+        var precipitationStop = this.list.points.filter((item) => item.precipitation.intensity === 0)[0];
+        var precipitationIntencityNow = this.list.points[0].precipitation.intensity;
         
-        var nowCast = this.translate('norain');
+        var nowCast = this.translate('no_precipitation');
 
-        if(rainStart != null)
-        {
-            var rainStartsIn = Math.abs(new Date() - new Date(rainStart.time)) / (1000 * 60);
-            nowCast = printf(this.translate("precipitation_in"), rainStartsIn.toFixed(0));
+        if(precipitationStart != null) {
+            var precipitationStartsIn = Math.abs(new Date() - new Date(precipitationStart.time)) / (1000 * 60);
+            nowCast = printf(this.translate("precipitation_in"), precipitationStartsIn.toFixed(0));
         }
 
-        if(rainStop != null)
-        {
-            var rainStopsIn = Math.abs(new Date() - new Date(rainStop.time)) / (1000 * 60);
-            nowCast = printf(this.translate("precipitation_ends"), rainStopsIn.toFixed(0));
+        if(precipitationStop != null) {
+            var precipitationStopsIn = Math.abs(new Date() - new Date(precipitationStop.time)) / (1000 * 60);
+            nowCast = printf(this.translate("precipitation_ends"), precipitationStopsIn.toFixed(0));
         }
-        wrapper.innerHTML = nowCast;
+        if(precipitationIntencityNow > 0) {
+            var precipitationSymbol = '';
+            if(precipitationIntencityNow <= 0.1)
+                precipitationSymbol = '46.png';
+            else if(precipitationIntencityNow <= 0.4)
+                precipitationSymbol = '09.png';
+            else
+                precipitationSymbol = '10.png';
+            wrapper.innerHTML = printf("<img src='%s' />", precipitationSymbol);
+        }
+        wrapper.innerHTML += printf('<p>%s</p>', nowCast);
     	return wrapper;
-	},
-
-	getNowcast: function() {
-		var self = this;
-		var req = new XMLHttpRequest();
-		req.onreadystatechange = function() {
-			if (this.readyState == 4 && (this.status == 200 || this.status == 304)) {
-				self.processJSON(JSON.parse(this.responseText));
-			}
-		};
-        var yrApiUrl = printf('https://www.yr.no/api/v0/locations/id/%s/forecast/now' ,this.config.locationId);
-		req.open('GET', yrApiUrl, true);			
-		req.send();
 	},
 
 	processJSON: function(obj) {
