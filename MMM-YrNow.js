@@ -10,10 +10,22 @@ Module.register('MMM-YrNow', {
 		this.scheduleUpdate(1000);
 	},
 
+    getTranslations: function() {
+        return {
+            no: "translations/no.json",
+        }
+    },
+
+    getScripts: function() {
+        return [
+            'printf.js'
+        ];
+    },
+
 	getDom: function() {		
 		var wrapper = document.createElement('div');
 		if (!this.loaded) {
-			wrapper.innerHTML = 'Laster inn...';
+			wrapper.innerHTML = this.translate('loading');
 			wrapper.className = 'dimmed light small';
 			return wrapper;
 	    }
@@ -25,18 +37,18 @@ Module.register('MMM-YrNow', {
         var rainStart = this.list.points.filter((item) => item.precipitation.intensity > 0)[0];
         var rainStop = this.list.points.filter((item) => item.precipitation.intensity === 0)[0];
         
-        var nowCast = 'Opphold neste 90 minutter';
+        var nowCast = this.translate('norain');
 
         if(rainStart != null)
         {
             var rainStartsIn = Math.abs(new Date() - new Date(rainStart.time)) / (1000 * 60);
-            nowCast = 'Nedbør om ' + rainStartsIn.toFixed(0) + ' minutter';
+            nowCast = printf(this.translate("precipitation_in"), rainStartsIn.toFixed(0));
         }
 
         if(rainStop != null)
         {
             var rainStopsIn = Math.abs(new Date() - new Date(rainStop.time)) / (1000 * 60);
-            nowCast = 'Opphold om ' + rainStopsIn.toFixed(0) + ' minutter';
+            nowCast = printf(this.translate("precipitation_ends"), rainStopsIn.toFixed(0));
         }
         wrapper.innerHTML = nowCast;
     	return wrapper;
@@ -50,7 +62,7 @@ Module.register('MMM-YrNow', {
 				self.processJSON(JSON.parse(this.responseText));
 			}
 		};
-        var yrApiUrl = 'https://www.yr.no/api/v0/locations/id/' + this.config.locationId + '/forecast/now'
+        var yrApiUrl = printf('https://www.yr.no/api/v0/locations/id/%s/forecast/now' ,this.config.locationId);
 		req.open('GET', yrApiUrl, true);			
 		req.send();
 	},
