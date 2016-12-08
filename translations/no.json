@@ -1,6 +1,7 @@
 {
-    "no_precipitation": "Opphold neste 90 minutter",
-    "precipitation_in": "Nedbør om %d minutter",
+    "no_precip_next_90": "Opphold neste 90 minutter",
+    "no_precip_now_but": "Opphold men regn om %d minutter",
+    "precip_now_but": "Det regner, men opphold om %d minutter",
     "precipitation_ends": "Opphold om %d minutter",
     "loading": "Laster inn..."
 }
