@@ -19,21 +19,44 @@ Module.register('MMM-YrNow', {
 		this.list = null;
 		this.loaded = false;
         this.getNowcast();
-		this.scheduleUpdate(10000);
+        var self = this;
+        setInterval(function() {
+            self.updateDom(1000);
+        }, 60000);
 	},
 
     socketNotificationReceived: function(notification, payload) {
 		if(notification === 'YR_NOWCAST_DATA'){
 			if(payload.points != null) {
+                var nextUpdate = payload.update;
+                var millisToUpdate = Math.abs((Date.parse(nextUpdate) - new Date()));
+                this.scheduleUpdate(millisToUpdate);
 				this.processJSON(payload);
 			}
 		}
 	},
 
     getNowcast: function() {
+        this.config.locationId='1-324168';
         var yrApiUrl = printf('https://www.yr.no/api/v0/locations/id/%s/forecast/now' ,this.config.locationId);
 		this.sendSocketNotification('GET_YR_NOWCAST', yrApiUrl);
 	},
+
+    getNextPrecipStart: function() {
+        return this.list.points.filter((item) => 
+            item.precipitation.intensity > 0 && 
+            Date.parse(item.time) > new Date())[0];
+    },
+
+    getNextPrecipStop: function() {
+        return this.list.points.filter((item) => 
+            item.precipitation.intensity === 0 &&
+            Date.parse(item.time) > new Date())[0];
+    },
+
+    getMinutesTill: function(nextItemTime) {
+        return Math.abs(new Date() - new Date(nextItemTime)) / (1000 * 60);
+    },
 
 	getDom: function() {		
 		var wrapper = document.createElement('div');
@@ -45,19 +68,42 @@ Module.register('MMM-YrNow', {
         wrapper.className = 'light medium bright';
 
         //Add fake data
-        this.list.points[0].precipitation.intensity = 0.3;
+//         for(var i = 0; i < 12; i++)
+//         {
+//           this.list.points[i].precipitation.intensity = 0.7;  
+//         }
+// this.list.points[0].precipitation.intensity = 0;
+//         this.list.points[1].precipitation.intensity = 0;
+//         this.list.points[1].time = '2016-12-09T14:22:30+01:00';
 
-        var precipitationStart = this.list.points.filter((item) => item.precipitation.intensity > 0)[0];
-        var precipitationStop = this.list.points.filter((item) => item.precipitation.intensity === 0)[0];
+        var precipitationStart = this.getNextPrecipStart();
+        var precipitationStop = this.getNextPrecipStop();
         var nowCast = this.translate('no_precip_next_90');
         var precipSymbol = '';
         if(precipitationStart != null) {
-            var precipitationStartsIn = Math.abs(new Date() - new Date(precipitationStart.time)) / (1000 * 60);
-            var precipitationStopsIn = Math.abs(new Date() - new Date(precipitationStop.time)) / (1000 * 60);
-            if(this.list.points[0].precipitation.intensity === 0)
-                nowCast = printf(this.translate("no_precip_now_but"), precipitationStartsIn.toFixed(0));
+            if(this.list.points[0].precipitation.intensity === 0) {
+                var precipitationStartsIn = this.getMinutesTill(precipitationStart.time);
+                if(precipitationStartsIn < 1) {
+                    precipitationStop = this.getNextPrecipStop();
+                    precipitationStopsIn = this.getMinutesTill(precipitationStop);
+                    nowCast = printf(this.translate("precipitation_ends"), precipitationStopsIn.toFixed(0));
+                }
+                else
+                    nowCast = printf(this.translate("precip_in"), precipitationStartsIn.toFixed(0));
+            }
+            else if(!precipitationStop) {
+                nowCast = this.translate("precip_next_90");
+                precipSymbol = this.getSymbol(this.list.points[0].precipitation.intensity);
+            }
             else {
-                nowCast = printf(this.translate("precip_now_but"), precipitationStartsIn.toFixed(0));
+                var precipitationStopsIn = this.getMinutesTill(precipitationStop.time);
+                if(precipitationStopsIn < 0) {
+                    precipitationStart = this.getNextPrecipStart();
+                    precipitationStartsIn = this.getMinutesTill(precipitationStart);
+                    nowCast = printf(this.translate("precip_in"), precipitationStartsIn.toFixed(0));
+                }
+                    
+                nowCast = printf(this.translate("precipitation_ends"), precipitationStopsIn.toFixed(0));
                 precipSymbol = this.getSymbol(this.list.points[0].precipitation.intensity);
             }
         }
@@ -83,7 +129,7 @@ Module.register('MMM-YrNow', {
 	},
 
 	scheduleUpdate: function(delay) {
-		var nextLoad = 60000;
+		var nextLoad = 450000;
 		if (typeof delay !== 'undefined' && delay >= 0) {
 			nextLoad = delay;
 		}
