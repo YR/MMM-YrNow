@@ -44,7 +44,6 @@ Module.register('MMM-YrNow', {
 	},
 
     getNowcast: function() {
-        this.config.locationId='1-324168';
         var yrApiUrl = printf('https://www.yr.no/api/v0/locations/id/%s/forecast/now' ,this.config.locationId);
 		this.sendSocketNotification('GET_YR_NOWCAST', yrApiUrl);
 	},
@@ -77,10 +76,10 @@ Module.register('MMM-YrNow', {
         wrapper.className = 'light medium bright';
 
         //Add fake data
-        for(var i = 0; i < this.list.points.length; i++)
-        {
-          this.list.points[i].precipitation.intensity = 0.2;  
-        }
+        // for(var i = 0; i < this.list.points.length; i++)
+        // {
+        //   this.list.points[i].precipitation.intensity = 0.2;  
+        // }
         //this.list.points[5].precipitation.intensity = 0;
 
 
