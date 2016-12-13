@@ -11,7 +11,14 @@ Module.register('MMM-YrNow', {
 
     getScripts: function() {
         return [
-            'printf.js'
+            'printf.js',
+            'readTextFile.js'
+        ];
+    },
+
+    getStyles: function() {
+        return [
+            'styles.css'
         ];
     },
 
@@ -45,13 +52,13 @@ Module.register('MMM-YrNow', {
     getNextPrecipStart: function() {
         return this.list.points.filter((item) => 
             item.precipitation.intensity > 0 && 
-            Date.parse(item.time) > new Date())[0];
+            Date.parse(item.time) >= new Date())[0];
     },
 
     getNextPrecipStop: function() {
         return this.list.points.filter((item) => 
             item.precipitation.intensity === 0 &&
-            Date.parse(item.time) > new Date())[0];
+            Date.parse(item.time) >= new Date())[0];
     },
 
     getMinutesTill: function(nextItemTime) {
@@ -60,6 +67,8 @@ Module.register('MMM-YrNow', {
 
 	getDom: function() {		
 		var wrapper = document.createElement('div');
+        var body = document.getElementsByTagName('body')[0];
+        body.className += 'backYellow';
 		if (!this.loaded) {
 			wrapper.innerHTML = this.translate('loading');
 			wrapper.className = 'dimmed light small';
@@ -68,18 +77,17 @@ Module.register('MMM-YrNow', {
         wrapper.className = 'light medium bright';
 
         //Add fake data
-//         for(var i = 0; i < 12; i++)
-//         {
-//           this.list.points[i].precipitation.intensity = 0.7;  
-//         }
-// this.list.points[0].precipitation.intensity = 0;
-//         this.list.points[1].precipitation.intensity = 0;
-//         this.list.points[1].time = '2016-12-09T14:22:30+01:00';
+        for(var i = 0; i < this.list.points.length; i++)
+        {
+          this.list.points[i].precipitation.intensity = 0.2;  
+        }
+        //this.list.points[5].precipitation.intensity = 0;
+
 
         var precipitationStart = this.getNextPrecipStart();
         var precipitationStop = this.getNextPrecipStop();
         var nowCast = this.translate('no_precip_next_90');
-        var precipSymbol = '';
+
         if(precipitationStart != null) {
             if(this.list.points[0].precipitation.intensity === 0) {
                 var precipitationStartsIn = this.getMinutesTill(precipitationStart.time);
@@ -88,12 +96,15 @@ Module.register('MMM-YrNow', {
                     precipitationStopsIn = this.getMinutesTill(precipitationStop);
                     nowCast = printf(this.translate("precipitation_ends"), precipitationStopsIn.toFixed(0));
                 }
-                else
+                else {
+                    wrapper.appendChild(this.getUmbrella());
                     nowCast = printf(this.translate("precip_in"), precipitationStartsIn.toFixed(0));
+                }
             }
             else if(!precipitationStop) {
+                this.createAnimation(wrapper);
+                wrapper.appendChild(this.getUmbrella());
                 nowCast = this.translate("precip_next_90");
-                precipSymbol = this.getSymbol(this.list.points[0].precipitation.intensity);
             }
             else {
                 var precipitationStopsIn = this.getMinutesTill(precipitationStop.time);
@@ -102,24 +113,30 @@ Module.register('MMM-YrNow', {
                     precipitationStartsIn = this.getMinutesTill(precipitationStart);
                     nowCast = printf(this.translate("precip_in"), precipitationStartsIn.toFixed(0));
                 }
-                    
+                this.createAnimation(wrapper);
+                wrapper.appendChild(this.getUmbrella()); 
                 nowCast = printf(this.translate("precipitation_ends"), precipitationStopsIn.toFixed(0));
-                precipSymbol = this.getSymbol(this.list.points[0].precipitation.intensity);
             }
         }
-        wrapper.innerHTML = printf('<p>%s<br/>%s</p>', precipSymbol, nowCast);
+        
+        var precipText = document.createElement("p");
+        precipText.className = 'precipText';
+        precipText.innerHTML = nowCast; 
+        wrapper.appendChild(precipText);
     	return wrapper;
 	},
 
-    getSymbol: function(intensity) {
-        var precipitationSymbol = '';
-        if(intensity <= 0.1)
-            precipitationSymbol = "<img src='" + this.file("/images/46.png") + "' />";
-        else if(intensity <= 0.4)
-            precipitationSymbol = "<img src='" + this.file("/images/09.png") + "' />";
-        else
-            precipitationSymbol = "<img src='" + this.file("/images/10.png") + "' />";
-        return precipitationSymbol
+    createAnimation: function(testElement) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", this.file("images/rain.svg"), false);
+        xhr.send("");
+        testElement.appendChild(xhr.responseXML.documentElement);
+    },
+
+    getUmbrella: function() {
+        var umbrella = document.createElement("img");
+        umbrella.src = this.file("images/umbrella.svg");
+        return umbrella;
     },
 
 	processJSON: function(obj) {

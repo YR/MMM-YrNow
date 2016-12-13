@@ -1,0 +1,29 @@
+<svg id="rain" xmlns="http://www.w3.org/2000/svg">
+    <circle id="rain--1" cx="5" cy="5" r="4">
+      <animateTransform attributeName="transform"
+        type="translate"
+        from="0 0"
+        to="0 100"
+        begin="0s"
+        dur="2s"
+        repeatCount="indefinite" />
+    </circle>
+    <circle id="rain--1" cx="5" cy="5" r="4">
+        <animateTransform attributeName="transform"
+          type="translate"
+          from="20 0"
+          to="20 100"
+          begin="0.67s"
+          dur="2s"
+          repeatCount="indefinite" />
+    </circle>
+    <circle id="rain--1" cx="5" cy="5" r="4">
+        <animateTransform attributeName="transform"
+            type="translate"
+            from="40 0"
+            to="40 100"
+            begin="0.33s"
+            dur="2s"
+            repeatCount="indefinite" />
+    </circle>
+</svg>
