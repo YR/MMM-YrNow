@@ -66,22 +66,13 @@ Module.register('MMM-YrNow', {
 
 	getDom: function() {		
 		var wrapper = document.createElement('div');
-        var body = document.getElementsByTagName('body')[0];
-        body.className += 'backYellow';
+
 		if (!this.loaded) {
 			wrapper.innerHTML = this.translate('loading');
 			wrapper.className = 'dimmed light small';
 			return wrapper;
 	    }
-        wrapper.className = 'light medium bright';
-
-        //Add fake data
-        // for(var i = 0; i < this.list.points.length; i++)
-        // {
-        //   this.list.points[i].precipitation.intensity = 0.2;  
-        // }
-        //this.list.points[5].precipitation.intensity = 0;
-
+        wrapper.className = 'light large bright';
 
         var precipitationStart = this.getNextPrecipStart();
         var precipitationStop = this.getNextPrecipStop();

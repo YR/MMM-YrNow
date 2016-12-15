@@ -1,7 +1,7 @@
 {
     "no_precip_next_90": "Opphold neste 90 min",
-    "precip_in": "Regn om %d min",
-    "precip_next_90": "Regn neste 90 min",
+    "precip_in": "Nedbør om %d min",
+    "precip_next_90": "Nedbør neste 90 min",
     "precipitation_ends": "Opphold om %d min",
     "loading": "Laster inn..."
 }
