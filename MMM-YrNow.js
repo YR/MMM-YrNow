@@ -37,8 +37,11 @@ Module.register('MMM-YrNow', {
 			if(payload.points != null) {
                 var nextUpdate = payload.update;
                 var millisToUpdate = Math.abs((Date.parse(nextUpdate) - new Date()));
-                this.scheduleUpdate(millisToUpdate);
-				this.processJSON(payload);
+                if (!this.loaded) {
+                    this.scheduleUpdate(millisToUpdate);
+				    this.processJSON(payload);
+                }
+    			this.loaded = true;
 			}
 		}
 	},
@@ -50,21 +53,19 @@ Module.register('MMM-YrNow', {
 
     getNextPrecipStart: function() {
         return this.list.points.filter((item) => 
-            item.precipitation.intensity > 0 && 
-            Date.parse(item.time) >= new Date())[0];
+            item.intensity > 0 && Date.parse(item.time) >= new Date().valueOf())[0];
     },
 
     getNextPrecipStop: function() {
         return this.list.points.filter((item) => 
-            item.precipitation.intensity === 0 &&
-            Date.parse(item.time) >= new Date())[0];
+            item.intensity === 0 && Date.parse(item.time) >= new Date().valueOf())[0];
     },
 
     getMinutesTill: function(nextItemTime) {
-        return Math.abs(new Date() - new Date(nextItemTime)) / (1000 * 60);
+        return Math.abs(Date.parse(nextItemTime) - new Date().valueOf()) / (1000 * 60);
     },
 
-	getDom: function() {		
+	getDom: function() {
 		var wrapper = document.createElement('div');
 
 		if (!this.loaded) {
@@ -79,33 +80,25 @@ Module.register('MMM-YrNow', {
         var nowCast = this.translate('no_precip_next_90');
 
         if(precipitationStart != null) {
-            if(this.list.points[0].precipitation.intensity === 0) {
-                var precipitationStartsIn = this.getMinutesTill(precipitationStart.time);
-                if(precipitationStartsIn < 1) {
-                    precipitationStop = this.getNextPrecipStop();
-                    precipitationStopsIn = this.getMinutesTill(precipitationStop);
-                    nowCast = printf(this.translate("precipitation_ends"), precipitationStopsIn.toFixed(0));
-                }
-                else {
-                    wrapper.appendChild(this.getUmbrella());
-                    nowCast = printf(this.translate("precip_in"), precipitationStartsIn.toFixed(0));
-                }
-            }
-            else if(!precipitationStop) {
+            //Precip some time during the next 90 minutes
+            var precipitationStartsIn = this.getMinutesTill(precipitationStart.time);
+                
+            //Precip now
+            if(precipitationStartsIn < 7) {
                 this.createAnimation(wrapper);
                 wrapper.appendChild(this.getUmbrella());
-                nowCast = this.translate("precip_next_90");
+                
+                if(precipitationStop) {
+                    precipitationStopsIn = this.getMinutesTill(precipitationStop.time);
+                    nowCast = printf(this.translate("precipitation_ends"), precipitationStopsIn.toFixed(0));
+                }
+                else
+                    nowCast = this.translate("precip_next_90");
             }
             else {
-                var precipitationStopsIn = this.getMinutesTill(precipitationStop.time);
-                if(precipitationStopsIn < 0) {
-                    precipitationStart = this.getNextPrecipStart();
-                    precipitationStartsIn = this.getMinutesTill(precipitationStart);
-                    nowCast = printf(this.translate("precip_in"), precipitationStartsIn.toFixed(0));
-                }
-                this.createAnimation(wrapper);
-                wrapper.appendChild(this.getUmbrella()); 
-                nowCast = printf(this.translate("precipitation_ends"), precipitationStopsIn.toFixed(0));
+                //Precip in n minutes
+                wrapper.appendChild(this.getUmbrella());
+                nowCast = printf(this.translate("precip_in"), precipitationStartsIn.toFixed(0));
             }
         }
         
@@ -131,7 +124,7 @@ Module.register('MMM-YrNow', {
 
 	processJSON: function(obj) {
 		this.list = obj;
-		this.loaded = true;		
+        this.loaded = true;	
 		this.updateDom(1000);
 	},
 
