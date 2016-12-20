@@ -41,7 +41,8 @@ Module.register('MMM-YrNow', {
                 if (!this.loaded) {
                     this.scheduleUpdate(millisToUpdate);
 				    this.processNowcast(payload.nowcast);
-                    this.processForecast(payload.forecast);
+                    if(this.config.showWeatherForecst)
+                        this.processForecast(payload.forecast);
                 }
     			this.loaded = true;
 			}
@@ -102,7 +103,7 @@ Module.register('MMM-YrNow', {
             }
         }
 
-        if(wrapper.childElementCount === 0)
+        if(wrapper.childElementCount === 0 && this.config.showWeatherForecst)
             wrapper.appendChild(this.getWeatherSymbol());
 
         var precipText = document.createElement('p');
