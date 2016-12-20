@@ -131,7 +131,7 @@ Module.register('MMM-YrNow', {
         var forecast = document.createElement('div');
         forecast.className = 'forecast';
         var temp = document.createElement('span');
-        temp.innerHTML = printf('%s°', this.temperature);
+        temp.innerHTML = printf('%s°', Math.round(this.temperature));
         temp.className = 'temperature';
         var symbol = document.createElement('img');
         symbol.src = this.file(printf('images/%s.svg', this.weatherSymbol));
