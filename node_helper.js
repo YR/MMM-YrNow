@@ -7,18 +7,25 @@ module.exports = NodeHelper.create({
 	},
 
 	socketNotificationReceived: function(notification, payload) {
-		if (notification === 'GET_YR_NOWCAST') {
-			this.getNowcast(payload);
-		}
+		if(notification === 'GET_YR_FORECAST') {
+            this.getForecast(payload)
+        }
 	},
 
-	getNowcast: function(nowCastUrl) {
+	getForecast: function(forecastUrl) {
 		var self = this;
-
-        request({url: nowCastUrl, method: 'GET'}, function(error, response, message) {
+        var locationData = {};
+        var nowcastUrl = forecastUrl + '/now';
+        
+        request({url: nowcastUrl, method: 'GET'}, function(error, response, message) {
             if (!error && response.statusCode == 200) {
-                var result = JSON.parse(message);
-                self.sendSocketNotification('YR_NOWCAST_DATA', result);
+                locationData.nowcast = JSON.parse(message);
+                request({url: forecastUrl, method: 'GET'}, function(error, response, message) {
+                    if (!error && response.statusCode == 200) {
+                        locationData.forecast = JSON.parse(message);
+                        self.sendSocketNotification('YR_FORECAST_DATA', locationData);
+                    }
+                });
             }
         });
 	}

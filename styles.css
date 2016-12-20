@@ -9,12 +9,29 @@
     white-space: nowrap;
 }
 
-img {
+img.nowcast {
   position: absolute;
   top: 60px;
   right: 20px;
   width: 90px;
 }
+
+.forecast {
+    text-align: center;
+    width: 100%;
+}
+
+.forecast img, span {
+    position: relative;
+    display: inline-block;
+    padding: 20px;
+    vertical-align: middle;
+}
+
+.forecast img {
+    width: 150px;
+}
+
 
 #rain {
   position: absolute;

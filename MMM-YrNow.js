@@ -1,6 +1,6 @@
 Module.register('MMM-YrNow', {
 	defaults: {
-        
+        yrApiUrl: "https://www.yr.no/api/v0/locations/id/%s/forecast"
 	},
 
     getTranslations: function() {
@@ -25,7 +25,8 @@ Module.register('MMM-YrNow', {
 	start: function() {
 		this.list = null;
 		this.loaded = false;
-        this.getNowcast();
+        var forecastUrl = printf(printf('%s', this.config.yrApiUrl),this.config.locationId);
+        this.getForecast(forecastUrl);
         var self = this;
         setInterval(function() {
             self.updateDom(1000);
@@ -33,32 +34,32 @@ Module.register('MMM-YrNow', {
 	},
 
     socketNotificationReceived: function(notification, payload) {
-		if(notification === 'YR_NOWCAST_DATA'){
-			if(payload.points != null) {
-                var nextUpdate = payload.update;
+		if(notification === 'YR_FORECAST_DATA') {
+			if(payload.nowcast.points != null) {
+                var nextUpdate = payload.nowcast.update;
                 var millisToUpdate = Math.abs((Date.parse(nextUpdate) - new Date()));
                 if (!this.loaded) {
                     this.scheduleUpdate(millisToUpdate);
-				    this.processJSON(payload);
+				    this.processNowcast(payload.nowcast);
+                    this.processForecast(payload.forecast);
                 }
     			this.loaded = true;
 			}
 		}
 	},
 
-    getNowcast: function() {
-        var yrApiUrl = printf('https://www.yr.no/api/v0/locations/id/%s/forecast/now' ,this.config.locationId);
-		this.sendSocketNotification('GET_YR_NOWCAST', yrApiUrl);
-	},
+    getForecast: function(url) {
+        this.sendSocketNotification('GET_YR_FORECAST', url);
+    },
 
     getNextPrecipStart: function() {
         return this.list.points.filter((item) => 
-            item.intensity > 0 && Date.parse(item.time) >= new Date().valueOf())[0];
+            item.precipitation.intensity > 0 && Date.parse(item.time) >= new Date().valueOf())[0];
     },
 
     getNextPrecipStop: function() {
         return this.list.points.filter((item) => 
-            item.intensity === 0 && Date.parse(item.time) >= new Date().valueOf())[0];
+            item.precipitation.intensity === 0 && Date.parse(item.time) >= new Date().valueOf())[0];
     },
 
     getMinutesTill: function(nextItemTime) {
@@ -74,10 +75,9 @@ Module.register('MMM-YrNow', {
 			return wrapper;
 	    }
         wrapper.className = 'light large bright';
-
+        var nowCast = this.translate('no_precip_next_90');
         var precipitationStart = this.getNextPrecipStart();
         var precipitationStop = this.getNextPrecipStop();
-        var nowCast = this.translate('no_precip_next_90');
 
         if(precipitationStart != null) {
             //Precip some time during the next 90 minutes
@@ -101,8 +101,11 @@ Module.register('MMM-YrNow', {
                 nowCast = printf(this.translate("precip_in"), precipitationStartsIn.toFixed(0));
             }
         }
-        
-        var precipText = document.createElement("p");
+
+        if(wrapper.childElementCount === 0)
+            wrapper.appendChild(this.getWeatherSymbol());
+
+        var precipText = document.createElement('p');
         precipText.className = 'precipText';
         precipText.innerHTML = nowCast; 
         wrapper.appendChild(precipText);
@@ -111,22 +114,64 @@ Module.register('MMM-YrNow', {
 
     createAnimation: function(testElement) {
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", this.file("images/rain.svg"), false);
-        xhr.send("");
+        xhr.open('GET', this.file('images/rain.svg'), false);
+        xhr.send('');
         testElement.appendChild(xhr.responseXML.documentElement);
     },
 
     getUmbrella: function() {
-        var umbrella = document.createElement("img");
-        umbrella.src = this.file("images/umbrella.svg");
+        var umbrella = document.createElement('img');
+        umbrella.className = 'nowcast';
+        umbrella.src = this.file('images/umbrella.svg');
         return umbrella;
     },
 
-	processJSON: function(obj) {
-		this.list = obj;
-        this.loaded = true;	
-		this.updateDom(1000);
+    getWeatherSymbol: function() {
+        var forecast = document.createElement('div');
+        forecast.className = 'forecast';
+        var temp = document.createElement('span');
+        temp.innerHTML = printf('%s°', this.temperature);
+        temp.className = 'temperature';
+        var symbol = document.createElement('img');
+        symbol.src = this.file(printf('images/%s.svg', this.weatherSymbol));
+        forecast.appendChild(symbol);
+        forecast.appendChild(temp);
+        return forecast;
+    },
+
+	processNowcast: function(obj) {
+        if(obj.points) {
+            this.list = obj;
+            this.loaded = true;	
+            this.updateDom(1000);
+        }
 	},
+
+    calculateWeatherSymbolId: function(data) {
+        if (!data) return '';
+        let id = data.n < 10 ? printf('0%s', data.n) : data.n;
+        switch (data.var) {
+            case 'Sun':
+            id += 'd';
+            break;
+            case 'PolarNight':
+            id += 'm';
+            break;
+            case 'Moon':
+            id += 'n';
+            break;
+        }
+        return id;
+    },
+
+    processForecast: function(obj) {
+        if(obj.shortIntervals) {
+            this.weatherSymbol = this.calculateWeatherSymbolId(obj.shortIntervals[0].symbol);
+            this.temperature = obj.shortIntervals[0].temperature.value;
+            this.loaded = true;
+            this.updateDom(1000);
+        }
+    },
 
 	scheduleUpdate: function(delay) {
 		var nextLoad = 450000;
