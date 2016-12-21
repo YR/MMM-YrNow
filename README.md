@@ -2,6 +2,7 @@
 
 This is a module for [MagicMirror²](https://github.com/MichMich/MagicMirror) which displays data from Yr's Nowcast.
 Nowcast data is only available for some Norwegian locations covered by the weather radar. See [Explanation (in Norwegian)](https://yrkundesenter.zendesk.com/hc/no/articles/209295525-N%C3%A5varsel-Pr%C3%B8v-v%C3%A5rt-nye-nedb%C3%B8rvarsel-)
+![Screenshot](/images/screenshot.png?raw=true)
 
 ## How to install
 
