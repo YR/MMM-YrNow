@@ -182,7 +182,7 @@ Module.register('MMM-YrNow', {
 
 		var self = this;
 		setTimeout(function() {
-			self.getNowcast();
+			self.getForecast();
 		}, nextLoad);
 	}
 });
