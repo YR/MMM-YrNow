@@ -37,7 +37,7 @@ Module.register('MMM-YrNow', {
 		if(notification === 'YR_FORECAST_DATA') {
 			if(payload.nowcast.points != null) {
                 var nextUpdate = payload.nowcast.update;
-                var millisToUpdate = Math.abs((Date.parse(nextUpdate) - new Date()));
+                var millisToUpdate = (Date.parse(nextUpdate) - new Date());
                 if (!this.loaded) {
                     this.scheduleUpdate(millisToUpdate);
 				    this.processNowcast(payload.nowcast);
