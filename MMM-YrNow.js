@@ -1,6 +1,7 @@
 Module.register('MMM-YrNow', {
 	defaults: {
-        yrApiUrl: "https://www.yr.no/api/v0/locations/id/%s/forecast"
+        yrApiUrl: "https://www.yr.no/api/v0/locations/id/%s/forecast",
+        updateInterval: 450000
 	},
 
     getTranslations: function() {
@@ -36,10 +37,7 @@ Module.register('MMM-YrNow', {
     socketNotificationReceived: function(notification, payload) {
 		if(notification === 'YR_FORECAST_DATA') {
 			if(payload.nowcast.points != null) {
-                var nextUpdate = payload.nowcast.update;
-                var millisToUpdate = (Date.parse(nextUpdate) - new Date());
                 if (!this.loaded) {
-                    this.scheduleUpdate(millisToUpdate);
 				    this.processNowcast(payload.nowcast);
                     if(this.config.showWeatherForecast)
                         this.processForecast(payload.forecast);
@@ -50,7 +48,10 @@ Module.register('MMM-YrNow', {
 	},
 
     getForecast: function(url) {
-        this.sendSocketNotification('GET_YR_FORECAST', url);
+        this.sendSocketNotification('GET_YR_FORECAST', {
+            forecastUrl: url,
+            config: this.config
+        });
     },
 
     getNextPrecipStart: function() {
@@ -174,15 +175,13 @@ Module.register('MMM-YrNow', {
         }
     },
 
-	scheduleUpdate: function(delay) {
-		var nextLoad = 450000;
+	setUpdate: function(delay) {
+		var nextLoad = 12000;
 		if (typeof delay !== 'undefined' && delay >= 0) {
 			nextLoad = delay;
 		}
 
 		var self = this;
-		setTimeout(function() {
-			self.getForecast();
-		}, nextLoad);
+        self.config.updateInterval = nextLoad;
 	}
 });
