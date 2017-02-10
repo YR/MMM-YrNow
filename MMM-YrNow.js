@@ -117,9 +117,13 @@ Module.register('MMM-YrNow', {
 
     createAnimation: function(testElement) {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', this.file('images/rain.svg'), false);
+        xhr.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                testElement.appendChild(xhr.responseXML.documentElement);
+            }
+        };
+        xhr.open('GET', this.file('images/rain.svg'), true);
         xhr.send('');
-        testElement.appendChild(xhr.responseXML.documentElement);
     },
 
     getUmbrella: function() {
