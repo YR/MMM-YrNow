@@ -1,7 +1,7 @@
 Module.register('MMM-YrNow', {
 	defaults: {
         yrApiUrl: "https://www.yr.no/api/v0/locations/id/%s/forecast",
-        updateInterval: 450000
+        updateInterval: 10000
 	},
 
     getTranslations: function() {
@@ -29,6 +29,7 @@ Module.register('MMM-YrNow', {
         var forecastUrl = printf(printf('%s', this.config.yrApiUrl),this.config.locationId);
         this.getForecast(forecastUrl);
         var self = this;
+
         setInterval(function() {
             self.updateDom(1000);
         }, 60000);
