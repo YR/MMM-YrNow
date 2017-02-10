@@ -21,7 +21,7 @@ Add the module to the modules array in the config/config.js file by adding the f
 		position: 'top_right',
 		config: {
 			locationId: '1-73738',
-            showWeatherForecst: true
+            showWeatherForecast: true
 		}
 	},
 
@@ -39,7 +39,7 @@ Add the module to the modules array in the config/config.js file by adding the f
 		<td>1-73738</td>
 	</tr>
     <tr>
-        <td>showWeatherForecst</td>
+        <td>showWeatherForecast</td>
         <td>If there's no precipitation in the nowcast, the weather forecast for the next period is shown.</td>
         <td>true</td>
     </tr>
