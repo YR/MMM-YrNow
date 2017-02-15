@@ -38,13 +38,10 @@ Module.register('MMM-YrNow', {
     socketNotificationReceived: function(notification, payload) {
 		if(notification === 'YR_FORECAST_DATA') {
 			if(payload.nowcast.points != null) {
-                if (!this.loaded) {
-				    this.processNowcast(payload.nowcast);
-                    if(this.config.showWeatherForecast)
-                        this.processForecast(payload.forecast);
-                }
-    			this.loaded = true;
-			}
+                this.processNowcast(payload.nowcast);
+                if(this.config.showWeatherForecast)
+                    this.processForecast(payload.forecast);
+            }
 		}
 	},
 
@@ -178,15 +175,5 @@ Module.register('MMM-YrNow', {
             this.loaded = true;
             this.updateDom(1000);
         }
-    },
-
-	setUpdate: function(delay) {
-		var nextLoad = 12000;
-		if (typeof delay !== 'undefined' && delay >= 0) {
-			nextLoad = delay;
-		}
-
-		var self = this;
-        self.config.updateInterval = nextLoad;
-	}
+    }
 });
