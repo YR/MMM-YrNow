@@ -21,7 +21,7 @@ img.nowcast {
     width: 100%;
 }
 
-.forecast img, span {
+.forecast img, .forecast span {
     position: relative;
     display: inline-block;
     padding: 20px;
