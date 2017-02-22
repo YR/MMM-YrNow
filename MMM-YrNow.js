@@ -74,7 +74,6 @@ Module.register('MMM-YrNow', {
 			wrapper.className = 'dimmed light small';
 			return wrapper;
 	    }
-        wrapper.className = 'light large bright';
         var nowCast = this.translate('no_precip_next_90');
         var precipitationStart = this.getNextPrecipStart();
         var precipitationStop = this.getNextPrecipStop();
@@ -106,7 +105,7 @@ Module.register('MMM-YrNow', {
             wrapper.appendChild(this.getWeatherSymbol());
 
         var precipText = document.createElement('p');
-        precipText.className = 'precipText';
+        precipText.className = 'medium precipText';
         precipText.innerHTML = nowCast; 
         wrapper.appendChild(precipText);
     	return wrapper;
@@ -135,7 +134,7 @@ Module.register('MMM-YrNow', {
         forecast.className = 'forecast';
         var temp = document.createElement('span');
         temp.innerHTML = printf('%s°', Math.round(this.temperature));
-        temp.className = 'temperature';
+        temp.className = 'temperature light large bright';
         var symbol = document.createElement('img');
         symbol.src = this.file(printf('images/%s.svg', this.weatherSymbol));
         forecast.appendChild(symbol);
