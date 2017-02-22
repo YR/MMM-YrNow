@@ -42,6 +42,7 @@ Module.register('MMM-YrNow', {
                 if(this.config.showWeatherForecast)
                     this.processForecast(payload.forecast);
             }
+            this.updateDom(1000);
 		}
 	},
 
@@ -146,7 +147,6 @@ Module.register('MMM-YrNow', {
         if(obj.points) {
             this.list = obj;
             this.loaded = true;	
-            this.updateDom(1000);
         }
 	},
 
@@ -172,7 +172,6 @@ Module.register('MMM-YrNow', {
             this.weatherSymbol = this.calculateWeatherSymbolId(obj.shortIntervals[0].symbol);
             this.temperature = obj.shortIntervals[0].temperature.value;
             this.loaded = true;
-            this.updateDom(1000);
         }
     }
 });
