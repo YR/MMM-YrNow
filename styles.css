@@ -3,17 +3,18 @@
     white-space: nowrap;
 }
 
-.wrapper {
+.animation {
     vertical-align: middle;
 }
 
-img.nowcast {
+img.umbrella {
     width: 90px;
+    margin-bottom: 10px;
 }
 
 .forecast {
-    text-align: center;
-    width: 100%;
+    display: inline-block;
+    width: 150px;
 }
 
 .forecast img, .forecast span {
@@ -23,14 +24,19 @@ img.nowcast {
     vertical-align: middle;
 }
 
-.forecast img {
+img.weatherSymbol {
     width: 150px;
 }
 
+.temperature {
+    display: inline-block;
+    vertical-align: middle;
+}
 
 #rain {
   height: 70px;
-  width: 54px;
+  width: 74px;
+  margin-bottom: -20px;
 }
 
 #rain--1, #rain--2, #rain--3 {

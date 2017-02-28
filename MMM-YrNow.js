@@ -69,8 +69,8 @@ Module.register('MMM-YrNow', {
 
 	getDom: function() {
 		var wrapper = document.createElement('div');
-        wrapper.className = 'wrapper';
         var animationWrapper = document.createElement('div');
+        animationWrapper.className = 'animation';
 
 		if (!this.loaded) {
 			wrapper.innerHTML = this.translate('loading');
@@ -80,16 +80,18 @@ Module.register('MMM-YrNow', {
         var nowCast = this.translate('no_precip_next_90');
         var precipitationStart = this.getNextPrecipStart();
         var precipitationStop = this.getNextPrecipStop();
+        var forecast = document.createElement('div');
+        forecast.className = 'forecast';
 
         if(precipitationStart != null) {
             //Precip some time during the next 90 minutes
             var precipitationStartsIn = this.getMinutesTill(precipitationStart.time);
-            wrapper.appendChild(animationWrapper);
+            forecast.appendChild(animationWrapper);
                 
             //Precip now
             if(precipitationStartsIn < 7) {
                 this.createAnimation(animationWrapper);
-                wrapper.appendChild(this.getUmbrella());            
+                forecast.appendChild(this.getUmbrella());            
                 if(precipitationStop) {
                     precipitationStopsIn = this.getMinutesTill(precipitationStop.time);
                     nowCast = printf(this.translate("precipitation_ends"), precipitationStopsIn.toFixed(0));
@@ -99,14 +101,16 @@ Module.register('MMM-YrNow', {
             }
             else {
                 //Precip in n minutes
-                wrapper.appendChild(this.getUmbrella());
+                forecast.appendChild(this.getUmbrella());
                 nowCast = printf(this.translate("precip_in"), precipitationStartsIn.toFixed(0));
             }
         }
 
-        if(wrapper.childElementCount === 0 && this.config.showWeatherForecast)
-            wrapper.appendChild(this.getWeatherSymbol());
-
+        if(nowCast == this.translate('no_precip_next_90') && this.config.showWeatherForecast) {
+            forecast.appendChild(this.getWeatherSymbol());
+        }
+        wrapper.appendChild(forecast);
+        wrapper.appendChild(this.getTemperature());
         wrapper.appendChild(this.createNowcastText(nowCast));
     	return wrapper;
 	},
@@ -131,22 +135,23 @@ Module.register('MMM-YrNow', {
 
     getUmbrella: function() {
         var umbrella = document.createElement('img');
-        umbrella.className = 'nowcast';
+        umbrella.className = 'umbrella';
         umbrella.src = this.file('images/umbrella.svg');
         return umbrella;
     },
 
     getWeatherSymbol: function() {
-        var forecast = document.createElement('div');
-        forecast.className = 'forecast';
-        var temp = document.createElement('span');
-        temp.innerHTML = printf('%s°', Math.round(this.temperature));
-        temp.className = 'temperature light large bright';
         var symbol = document.createElement('img');
+        symbol.className = 'weatherSymbol';
         symbol.src = this.file(printf('images/%s.svg', this.weatherSymbol));
-        forecast.appendChild(symbol);
-        forecast.appendChild(temp);
-        return forecast;
+        return symbol;
+    },
+
+    getTemperature: function() {
+        var temp = document.createElement('div');
+        temp.className = 'temperature light large bright';
+        temp.innerHTML = printf('%s°', Math.round(this.temperature));
+        return temp;
     },
 
 	processNowcast: function(obj) {
