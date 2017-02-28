@@ -1,8 +1,10 @@
 # MagicMirror² Module: YrNow
 
-This is a module for [MagicMirror²](https://github.com/MichMich/MagicMirror) which displays data from Yr's Nowcast.
-Nowcast data is only available for some Norwegian locations covered by the weather radar. See [Explanation (in Norwegian)](https://yrkundesenter.zendesk.com/hc/no/articles/209295525-N%C3%A5varsel-Pr%C3%B8v-v%C3%A5rt-nye-nedb%C3%B8rvarsel-)
+This is the official Yr Nowcast module for [MagicMirror²](https://github.com/MichMich/MagicMirror), which displays data from [Yr](https://www.yr.no/nb/).
+Nowcast data is only available for some Norwegian locations covered by the Norwegian weather radars. See [Explanation (in Norwegian)](https://yrkundesenter.zendesk.com/hc/no/articles/209295525-N%C3%A5varsel-Pr%C3%B8v-v%C3%A5rt-nye-nedb%C3%B8rvarsel-)
 ![Screenshot](/images/screenshot.png?raw=true). Sometimes the Nowcast will tell you "no precipitation next 90 minutes", while the weather symbol contains rain or snow. This is expected, since the weather symbol is based on a weather model and Nowcast is based on radar observations.
+
+The temperature value is fetched from the current hour in the weather forecast for your location.
 
 ## How to install
 
