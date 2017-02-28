@@ -1,13 +1,14 @@
 .precipText {
+    margin: 0px;
     white-space: nowrap;
-    display: inline;
+}
+
+.wrapper {
+    vertical-align: middle;
 }
 
 img.nowcast {
-  position: absolute;
-  top: 60px;
-  right: 20px;
-  width: 90px;
+    width: 90px;
 }
 
 .forecast {
@@ -28,11 +29,8 @@ img.nowcast {
 
 
 #rain {
-  position: absolute;
-  top: 0;
-  right: 0px;
   height: 70px;
-  width: 90px;
+  width: 54px;
 }
 
 #rain--1, #rain--2, #rain--3 {

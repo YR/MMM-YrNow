@@ -69,6 +69,8 @@ Module.register('MMM-YrNow', {
 
 	getDom: function() {
 		var wrapper = document.createElement('div');
+        wrapper.className = 'wrapper';
+        var animationWrapper = document.createElement('div');
 
 		if (!this.loaded) {
 			wrapper.innerHTML = this.translate('loading');
@@ -82,12 +84,12 @@ Module.register('MMM-YrNow', {
         if(precipitationStart != null) {
             //Precip some time during the next 90 minutes
             var precipitationStartsIn = this.getMinutesTill(precipitationStart.time);
+            wrapper.appendChild(animationWrapper);
                 
             //Precip now
             if(precipitationStartsIn < 7) {
-                this.createAnimation(wrapper);
-                wrapper.appendChild(this.getUmbrella());
-                
+                this.createAnimation(animationWrapper);
+                wrapper.appendChild(this.getUmbrella());            
                 if(precipitationStop) {
                     precipitationStopsIn = this.getMinutesTill(precipitationStop.time);
                     nowCast = printf(this.translate("precipitation_ends"), precipitationStopsIn.toFixed(0));
@@ -105,12 +107,16 @@ Module.register('MMM-YrNow', {
         if(wrapper.childElementCount === 0 && this.config.showWeatherForecast)
             wrapper.appendChild(this.getWeatherSymbol());
 
-        var precipText = document.createElement('p');
-        precipText.className = 'medium precipText';
-        precipText.innerHTML = nowCast; 
-        wrapper.appendChild(precipText);
+        wrapper.appendChild(this.createNowcastText(nowCast));
     	return wrapper;
 	},
+
+    createNowcastText: function(nowCast) {
+        var nowCastText = document.createElement('p');   
+        nowCastText.className = 'medium precipText';
+        nowCastText.innerHTML = nowCast;
+        return nowCastText
+    }, 
 
     createAnimation: function(testElement) {
         var xhr = new XMLHttpRequest();
