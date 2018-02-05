@@ -14,7 +14,7 @@ Remote into your Magic Mirror box using a terminal software and go to the module
 
 Clone the repository:
 
-	git clone https://github.com/nrkno/MMM-YrNow
+	git clone https://github.com/YR/MMM-YrNow
 
 Add the module to the modules array in the config/config.js file by adding the following section. You can change this configuration later when you see this works:
 
