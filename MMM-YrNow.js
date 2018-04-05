@@ -18,10 +18,8 @@ Module.register('MMM-YrNow', {
     },
 
     getStyles: function() {
-        return [
-            'styles.css'
-        ];
-    },
+		return ['mmm-yrnow.css'];
+	},
 
 	start: function() {
 		this.list = null;
