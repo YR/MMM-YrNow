@@ -7,7 +7,6 @@ module.exports = NodeHelper.create({
         this.subscriptions = [];
     },
 
-
     socketNotificationReceived: function(notification, payload) {
         if(notification === 'GET_YR_FORECAST') {
             this.subscriptions[payload.forecastUrl] = payload.config;

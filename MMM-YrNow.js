@@ -31,7 +31,7 @@ Module.register('MMM-YrNow', {
         var self = this;
         setInterval(function() {
             self.updateDom(1000);
-        }, 1000);
+        }, 60000);
 	},
 
     socketNotificationReceived: function(notification, payload) {
@@ -80,13 +80,11 @@ Module.register('MMM-YrNow', {
         if (this.invalidated){
             var info = document.createElement('p')
             info.className = 'small';
-            info.style.width = "250px"
-            info.innerHTML = "Error: locationId "+this.config.locationId+" does not provide valid location data";
+            info.style.width = "300px"
+            info.innerHTML = "Error. "+this.config.locationId+" is invalid";
             wrapper.appendChild(info)
-            return wrapper
+            return wrapper;
         }
-
-
         var animationWrapper = document.createElement('div');
         animationWrapper.className = 'animation';
         if (this.config.placeName) {
