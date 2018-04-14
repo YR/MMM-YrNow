@@ -27,6 +27,7 @@ module.exports = NodeHelper.create({
             request({ url: infoUrl, method: 'GET'}, function(error, response, message) {
                 if (!error && (response.statusCode == 200 || response.statusCode == 304)) {
                         let data = JSON.parse(message);
+                        locationData.placeName = data.name;
                         self.subscriptions[forecastUrl].placeName =data.name;
                 }
             });
