@@ -1,12 +1,13 @@
 Module.register('MMM-YrNow', {
 	defaults: {
         yrApiUrl: "https://www.yr.no/api/v0/locations/id/%s/forecast",
-        updateInterval: 10000
+        updateInterval: 10000,
+        placeName: ''
 	},
 
     getTranslations: function() {
         return {
-            no: "translations/no.json",
+            nb: "translations/nb.json",
         }
     },
 
@@ -24,17 +25,26 @@ Module.register('MMM-YrNow', {
 	start: function() {
 		this.list = null;
 		this.loaded = false;
-        var forecastUrl = printf(printf('%s', this.config.yrApiUrl),this.config.locationId);
-        this.getForecast(forecastUrl);
+        this.forecastUrl = printf(printf('%s', this.config.yrApiUrl),this.config.locationId);
+        this.getForecast(this.forecastUrl);
+        this.invalidated == 'false'
         var self = this;
-
         setInterval(function() {
             self.updateDom(1000);
-        }, 60000);
+        }, 1000);
 	},
 
     socketNotificationReceived: function(notification, payload) {
-		if(notification === 'YR_FORECAST_DATA') {
+        if ((notification === 'YR_INVALID_NOWCAST') && (payload === this.forecastUrl) ) {
+            this.invalidated = true;
+            this.updateDom(0);
+            return false;
+        }
+
+		if( (notification === 'YR_FORECAST_DATA') && (payload.forecastUrl === this.forecastUrl) ) {
+            if (!this.config.placeName && payload.placeName) {
+                this.config.placeName = payload.placeName;
+            } 
 			if(payload.nowcast.points != null) {
                 this.processNowcast(payload.nowcast);
                 if(this.config.showWeatherForecast)
@@ -67,9 +77,24 @@ Module.register('MMM-YrNow', {
 
 	getDom: function() {
 		var wrapper = document.createElement('div');
+        if (this.invalidated){
+            var info = document.createElement('p')
+            info.className = 'small';
+            info.style.width = "250px"
+            info.innerHTML = "Error: locationId "+this.config.locationId+" does not provide valid location data";
+            wrapper.appendChild(info)
+            return wrapper
+        }
+
+
         var animationWrapper = document.createElement('div');
         animationWrapper.className = 'animation';
-
+        if (this.config.placeName) {
+            var place = document.createElement('div');
+            place.className = 'thin light small';
+            place.innerHTML = this.config.placeName;
+            wrapper.appendChild(place);
+        };
 		if (!this.loaded) {
 			wrapper.innerHTML = this.translate('loading');
 			wrapper.className = 'dimmed light small';
@@ -117,7 +142,7 @@ Module.register('MMM-YrNow', {
         var nowCastText = document.createElement('p');   
         nowCastText.className = 'medium precipText';
         nowCastText.innerHTML = nowCast;
-        return nowCastText
+        return nowCastText;
     }, 
 
     createAnimation: function(testElement) {
