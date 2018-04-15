@@ -12,7 +12,7 @@ Module.register('MMM-YrNow', {
             nb: "translations/nb.json",
             nn: "translations/nn.json",
             en: "translations/en.json"
-        }
+        };
     },
 
     getScripts: function() {
@@ -34,7 +34,7 @@ Module.register('MMM-YrNow', {
         this.loaded = false;
         this.forecastUrl = printf(printf('%s', this.config.yrApiUrl),this.config.locationId);
         this.getForecast(this.forecastUrl);
-        this.invalidated == 'false'
+        this.invalidated = false;
         var self = this;
         setInterval(function() {
             self.updateDom(1000);
@@ -87,11 +87,11 @@ Module.register('MMM-YrNow', {
     getDom: function() {
         var wrapper = document.createElement('div');
         if (this.invalidated){
-            var info = document.createElement('p')
+            var info = document.createElement('p');
             info.className = 'small';
-            info.style.width = "300px"
+            info.style.width = '300px';
             info.innerHTML = "Error. "+this.config.locationId+" is invalid";
-            wrapper.appendChild(info)
+            wrapper.appendChild(info);
             return wrapper;
         }
         var animationWrapper = document.createElement('div');

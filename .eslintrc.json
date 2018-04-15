@@ -6,7 +6,8 @@
 		"curly": "error",
 		"camelcase": ["error", {"properties": "never"}],
 		"no-trailing-spaces": ["error", {"ignoreComments": false }],
-		"no-irregular-whitespace": ["error"]
+		"no-irregular-whitespace": ["error"],
+		"semi": "error"
 	},
 	"env": {
 		"browser": true,
