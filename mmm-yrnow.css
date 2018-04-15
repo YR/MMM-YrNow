@@ -1,6 +1,9 @@
 .MMM-YrNow {
     display: inline-block;
 }
+.noInline {
+    display: block;
+}
 
 .MMM-YrNow .precipText {
     margin: 0px;
@@ -45,4 +48,6 @@
 .MMM-YrNow #rain--1, .MMM-YrNow #rain--2, .MMM-YrNow #rain--3 {
   fill: #00B9F1;
   -webkit-transition: opacity 600ms cubic-bezier(0.645, 0.045, 0.355, 1);
+  transition: opacity 600ms cubic-bezier(0.645, 0.045, 0.355, 1);
+  
 }

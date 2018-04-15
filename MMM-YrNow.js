@@ -1,13 +1,16 @@
 Module.register('MMM-YrNow', {
-	defaults: {
+    defaults: {
         yrApiUrl: "https://www.yr.no/api/v0/locations/id/%s/forecast",
         updateInterval: 10000,
-        placeName: ''
-	},
+        placeName: '',
+        noInline: false
+    },
 
     getTranslations: function() {
         return {
             nb: "translations/nb.json",
+            nn: "translations/nn.json",
+            en: "translations/en.json"
         }
     },
 
@@ -19,12 +22,15 @@ Module.register('MMM-YrNow', {
     },
 
     getStyles: function() {
-		return ['mmm-yrnow.css'];
-	},
+        return ['mmm-yrnow.css'];
+    },
 
-	start: function() {
-		this.list = null;
-		this.loaded = false;
+    start: function() {
+        if (this.config.noInline){
+            this.data.classes += " noInline";
+        }
+        this.list = null;
+        this.loaded = false;
         this.forecastUrl = printf(printf('%s', this.config.yrApiUrl),this.config.locationId);
         this.getForecast(this.forecastUrl);
         this.invalidated == 'false'
@@ -32,7 +38,7 @@ Module.register('MMM-YrNow', {
         setInterval(function() {
             self.updateDom(1000);
         }, 60000);
-	},
+    },
 
     socketNotificationReceived: function(notification, payload) {
         if ((notification === 'YR_INVALID_NOWCAST') && (payload === this.forecastUrl) ) {
@@ -41,18 +47,20 @@ Module.register('MMM-YrNow', {
             return false;
         }
 
-		if( (notification === 'YR_FORECAST_DATA') && (payload.forecastUrl === this.forecastUrl) ) {
+        if( (notification === 'YR_FORECAST_DATA') && (payload.forecastUrl === this.forecastUrl) ) {
             if (!this.config.placeName && payload.placeName) {
                 this.config.placeName = payload.placeName;
-            } 
-			if(payload.nowcast.points != null) {
+            }
+            if(payload.nowcast.points != null) {
                 this.processNowcast(payload.nowcast);
                 if(this.config.showWeatherForecast)
+                {
                     this.processForecast(payload.forecast);
+                }
             }
             this.updateDom(1000);
-		}
-	},
+        }
+    },
 
     getForecast: function(url) {
         this.sendSocketNotification('GET_YR_FORECAST', {
@@ -62,12 +70,12 @@ Module.register('MMM-YrNow', {
     },
 
     getNextPrecipStart: function() {
-        return this.list.points.filter((item) => 
+        return this.list.points.filter((item) =>
             item.precipitation.intensity > 0 && Date.parse(item.time) >= new Date().valueOf())[0];
     },
 
     getNextPrecipStop: function() {
-        return this.list.points.filter((item) => 
+        return this.list.points.filter((item) =>
             item.precipitation.intensity === 0 && Date.parse(item.time) >= new Date().valueOf())[0];
     },
 
@@ -75,8 +83,8 @@ Module.register('MMM-YrNow', {
         return Math.abs(Date.parse(nextItemTime) - new Date().valueOf()) / (1000 * 60);
     },
 
-	getDom: function() {
-		var wrapper = document.createElement('div');
+    getDom: function() {
+        var wrapper = document.createElement('div');
         if (this.invalidated){
             var info = document.createElement('p')
             info.className = 'small';
@@ -87,17 +95,14 @@ Module.register('MMM-YrNow', {
         }
         var animationWrapper = document.createElement('div');
         animationWrapper.className = 'animation';
+        if (!this.loaded) {
+            wrapper.innerHTML = this.translate('loading');
+            wrapper.className = 'dimmed light small';
+            return wrapper;
+        }
         if (this.config.placeName) {
-            var place = document.createElement('div');
-            place.className = 'thin light small';
-            place.innerHTML = this.config.placeName;
-            wrapper.appendChild(place);
+            wrapper.appendChild(this.getPlaceName());
         };
-		if (!this.loaded) {
-			wrapper.innerHTML = this.translate('loading');
-			wrapper.className = 'dimmed light small';
-			return wrapper;
-	    }
         var nowCast = this.translate('no_precip_next_90');
         var precipitationStart = this.getNextPrecipStart();
         var precipitationStop = this.getNextPrecipStop();
@@ -108,17 +113,19 @@ Module.register('MMM-YrNow', {
             //Precip some time during the next 90 minutes
             var precipitationStartsIn = this.getMinutesTill(precipitationStart.time);
             forecast.appendChild(animationWrapper);
-                
+
             //Precip now
             if(precipitationStartsIn < 7) {
                 this.createAnimation(animationWrapper);
-                forecast.appendChild(this.getUmbrella());            
+                forecast.appendChild(this.getUmbrella());
                 if(precipitationStop) {
                     precipitationStopsIn = this.getMinutesTill(precipitationStop.time);
                     nowCast = printf(this.translate("precipitation_ends"), precipitationStopsIn.toFixed(0));
                 }
                 else
+                {
                     nowCast = this.translate("precip_next_90");
+                }
             }
             else {
                 //Precip in n minutes
@@ -134,14 +141,14 @@ Module.register('MMM-YrNow', {
         wrapper.appendChild(this.getTemperature());
         wrapper.appendChild(this.createNowcastText(nowCast));
     	return wrapper;
-	},
+    },
 
     createNowcastText: function(nowCast) {
-        var nowCastText = document.createElement('p');   
+        var nowCastText = document.createElement('p');
         nowCastText.className = 'medium precipText';
         nowCastText.innerHTML = nowCast;
         return nowCastText;
-    }, 
+    },
 
     createAnimation: function(testElement) {
         var xhr = new XMLHttpRequest();
@@ -175,24 +182,31 @@ Module.register('MMM-YrNow', {
         return temp;
     },
 
-	processNowcast: function(obj) {
+    getPlaceName: function(){
+        var place = document.createElement('div');
+        place.className = 'thin light small';
+        place.innerHTML = this.config.placeName;
+        return place;
+    },
+
+    processNowcast: function(obj) {
         if(obj.points) {
             this.list = obj;
-            this.loaded = true;	
+            this.loaded = true;
         }
-	},
+    },
 
     calculateWeatherSymbolId: function(data) {
-        if (!data) return '';
+        if (!data) {return '';}
         let id = data.n < 10 ? printf('0%s', data.n) : data.n;
         switch (data.var) {
-            case 'Sun':
+        case 'Sun':
             id += 'd';
             break;
-            case 'PolarNight':
+        case 'PolarNight':
             id += 'm';
             break;
-            case 'Moon':
+        case 'Moon':
             id += 'n';
             break;
         }
