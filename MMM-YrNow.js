@@ -3,6 +3,7 @@ Module.register('MMM-YrNow', {
         yrApiUrl: "https://www.yr.no/api/v0/locations/id/%s/forecast",
         updateInterval: 10000,
         placeName: '',
+        showHeader:  'true',
         noInline: false
     },
 
@@ -100,8 +101,8 @@ Module.register('MMM-YrNow', {
             wrapper.className = 'dimmed light small';
             return wrapper;
         }
-        if (this.config.placeName) {
-            wrapper.appendChild(this.getPlaceName());
+        if (this.config.showHeader && this.config.placeName) {
+            wrapper.appendChild(this.getHeader());
         };
         var nowCast = this.translate('no_precip_next_90');
         var precipitationStart = this.getNextPrecipStart();
@@ -182,7 +183,7 @@ Module.register('MMM-YrNow', {
         return temp;
     },
 
-    getPlaceName: function(){
+    getHeader: function(){
         var place = document.createElement('div');
         place.className = 'thin light small';
         place.innerHTML = this.config.placeName;
