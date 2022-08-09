@@ -1,6 +1,6 @@
 Module.register('MMM-YrNow', {
 	defaults: {
-        yrApiUrl: "https://www.yr.no/api/v0/locations/id/%s/forecast",
+        yrApiUrl: "https://www.yr.no/api/v0/locations/%s/forecast",
         updateInterval: 10000
 	},
 
