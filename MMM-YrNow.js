@@ -6,7 +6,9 @@ Module.register('MMM-YrNow', {
 
     getTranslations: function() {
         return {
+            en: "translations/en.json",
             no: "translations/no.json",
+            se: "translations/se.json",
         }
     },
 
